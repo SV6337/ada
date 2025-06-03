@@ -2,93 +2,67 @@
 Minimum Cost Spanning Tree of a given connected 
 undirected graph using Kruskal's algorithm 
 PROGRAM: 
-#include <stdio.h> 
-#include <stdlib.h> 
-#define MAX_EDGES 1000 
-// Structure to represent an edge in the graph 
-typedef struct Edge { 
-int src, dest, weight; 
-} Edge; 
-typedef struct Graph { 
-int V, E; 
-Edge edges[MAX_EDGES]; 
-} Graph; 
-// Structure to represent a subset for union-find 
-typedef struct Subset { 
-int parent, rank; 
-} Subset; 
-Graph* createGraph(int V, int E) { 
-Graph* graph = (Graph*) malloc(sizeof(Graph)); 
-graph->V = V; 
-graph->E = E; 
-return graph; 
-} 
-// Function to find the root of the set the vertex belongs to 
-int find(Subset subsets[], int i) { 
-if (subsets[i].parent != i) { 
-subsets[i].parent = find(subsets, subsets[i].parent); 
-} 
-return subsets[i].parent; 
-} 
-// Function to perform union of two sets 
-void Union(Subset subsets[], int x, int y) { 
-int xroot = find(subsets, x); 
-int yroot = find(subsets, y); 
-// Attach smaller rank tree under root of larger rank tree 
-if (subsets[xroot].rank < subsets[yroot].rank) { 
-subsets[xroot].parent = yroot; 
-} else if (subsets[xroot].rank > subsets[yroot].rank) { 
-subsets[yroot].parent = xroot; 
-} else { 
-subsets[yroot].parent = xroot; 
-subsets[xroot].rank++; 
-} 
-} 
-// Function to compare two edges by weight 
-int compare(const void* a, const void* b) { 
-Edge* a_edge = (Edge*) a; 
-Edge* b_edge = (Edge*) b; 
-return a_edge->weight - b_edge->weight; 
-} 
-void kruskalMST(Graph* graph) { 
-Edge mst[graph->V]; 
-int e = 0, i = 0; 
-//Sort the edges by weight 
-qsort(graph->edges, graph->E, sizeof(Edge), compare); 
-// Allocate memory for subsets 
-Subset* subsets = (Subset*) malloc(graph->V * sizeof(Subset)); 
-for (int v = 0; v < graph->V; ++v) { 
-subsets[v].parent = v; 
-subsets[v].rank = 0; 
-} 
-while (e < graph->V - 1 && i < graph->E) { 
-Edge next_edge = graph->edges[i++]; 
-int x = find(subsets, next_edge.src); 
-int y = find(subsets, next_edge.dest); 
-// Check if adding edge creates a cycle 
-if (x != y) { 
-mst[e++] = next_edge; 
-Union(subsets, x, y); 
-} 
-} 
-printf("Minimum Spanning Tree:\n"); 
-for (i = 0; i < e; ++i) { 
-printf("(%d, %d) -> %d\n", mst[i].src, mst[i].dest, mst[i].weight); 
-} 
-} 
-int main() { 
-int V, E; 
-printf("Enter number of vertices and edges: "); 
-scanf("%d %d", &V, &E); 
-Graph* graph = createGraph(V, E); 
-printf("Enter edges and their weights:\n"); 
-for (int i = 0; i < E; ++i) { 
-scanf("%d %d %d", &graph->edges[i].src, &graph->edges[i].dest, 
-&graph->edges[i].weight); 
-} 
-kruskalMST(graph); 
-return 0; 
-} 
+#define INF 999
+#define MAX 100
+int p[MAX], c[MAX][MAX], t[MAX][2];
+int find(int v)
+{
+    while (p[v])
+        v = p[v];
+    return v;
+}
+void union1(int i, int j)
+{
+    p[j] = i;
+}
+void kruskal(int n)
+{
+    int i, j, k, u, v, min, res1, res2, sum = 0;
+    for (k = 1; k < n; k++)
+    {
+        min = INF;
+        for (i = 1; i < n - 1; i++)
+        {
+            for (j = 1; j <= n; j++)
+            {
+                if (i == j) continue;
+                if (c[i][j] < min)
+                {
+                    u = find(i);
+                    v = find(j);
+                    if (u != v)
+                    {
+                        res1 = i;
+                        res2 = j;
+                        min = c[i][j];
+                    }
+                }
+            }
+        }
+        union1(res1, find(res2));
+        t[k][1] = res1;
+        t[k][2] = res2;
+        sum = sum + min;
+    }
+    printf("\nCost of spanning tree is=%d", sum);
+    printf("\nEdgesof spanning tree are:\n");
+    for (i = 1; i < n; i++)
+        printf("%d -> %d\n", t[i][1], t[i][2]);
+}
+int main()
+{
+    int i, j, n;
+    printf("\nEnter the n value:");
+    scanf("%d", & n);
+    for (i = 1; i <= n; i++)
+        p[i] = 0;
+    printf("\nEnter the graph data:\n");
+    for (i = 1; i <= n; i++)
+        for (j = 1; j <= n; j++)
+            scanf("%d", & c[i][j]);
+    kruskal(n);
+    return 0;
+}
 2. Design and implement C Program to find Minimum Cost 
 Spanning Tree of a given connected undirected graph using 
 Prim's algorithm 
